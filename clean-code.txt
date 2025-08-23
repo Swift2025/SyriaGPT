@@ -1,0 +1,26 @@
+🟢 قواعد عامة
+
+Naming
+
+Project Structure
+
+Formatting
+
+Comments
+🟢 مبادئ التصميم
+SOLID
+DRY
+KISS
+YAGNI
+🟢 جودة الكود
+Testing
+Error Handling
+Security
+🟢 الـ APIs
+RESTful Standards
+Documentation
+🟢 عمليات التطوير
+Git Standards
+Code Review
+CI/CD
+Environment
