@@ -1,9 +1,19 @@
+# Reloading the server
+
 uvicorn main:app --reload
-#for-build-in-doc
+
+# Building SyriaGPT on Docker
+
 docker build -t syria-gpt .
-#for-run-serv
-docker run -p 8000:8000 syria-gpt
-# http://localhost:8000 or http://127.0.0.1:8000
-pgAdmin: http://localhost:5050
+
+# Running Docker Container at port 8000
+
+docker run -p 9000:9000 syria-gpt
+
+# Server URL: http://localhost:9000 or http://127.0.0.1:9000
+
+PostgreSQL Admin: http://localhost:5050
+
+# Composing container for first time
+
 docker-compose up --build
-oosjfosjfsjfpsjf

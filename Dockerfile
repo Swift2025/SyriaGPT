@@ -6,7 +6,7 @@ COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8000
+EXPOSE 9000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-# http://localhost:8000 or http://127.0.0.1:8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]
+# http://localhost:9000 or http://127.0.0.1:9000
