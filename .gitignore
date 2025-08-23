@@ -2,3 +2,4 @@ clean-code.txt
 data-migration.txt
 *.pdf
 user-model.txt
+/.claude
