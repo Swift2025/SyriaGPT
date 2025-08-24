@@ -6,6 +6,8 @@ import os
 import secrets
 import string
 
+from config.config_loader import config_loader
+
 
 class AuthService:
     def __init__(self):
@@ -44,21 +46,21 @@ class AuthService:
 
     def validate_password_strength(self, password: str) -> tuple[bool, str]:
         if len(password) < 8:
-            return False, "Password must be at least 8 characters long"
+            return False, config_loader.get_message("validation", "password_too_short")
         
         if not any(c.isupper() for c in password):
-            return False, "Password must contain at least one uppercase letter"
+            return False, config_loader.get_message("validation", "password_no_uppercase")
         
         if not any(c.islower() for c in password):
-            return False, "Password must contain at least one lowercase letter"
+            return False, config_loader.get_message("validation", "password_no_lowercase")
         
         if not any(c.isdigit() for c in password):
-            return False, "Password must contain at least one number"
+            return False, config_loader.get_message("validation", "password_no_number")
         
         if not any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password):
-            return False, "Password must contain at least one special character"
+            return False, config_loader.get_message("validation", "password_no_special")
         
-        return True, "Password is strong"
+        return True, config_loader.get_message("validation", "password_strong")
 
 
 auth_service = AuthService()

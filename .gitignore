@@ -3,3 +3,4 @@ data-migration.txt
 *.pdf
 user-model.txt
 /.claude
+*.pyc
