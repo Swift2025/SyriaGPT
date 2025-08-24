@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import smtplib
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -7,6 +7,8 @@ from email.mime.text import MIMEText
 from sqlalchemy.orm import Session
 from models.user import User
 from services.auth import AuthService
+from services.database import SessionLocal
+from fastapi import HTTPException
 
 
 
@@ -61,7 +63,7 @@ class ForgotPasswordService:
             user = self.db.query(User).filter(User.email == email).first()
             if not user or user.reset_token != token:
                 return None
-            if user.reset_token_expiry < datetime.utcnow():
+            if user.reset_token_expiry < datetime.now(timezone.utc):
                 return None
             return user
         except JWTError:
@@ -70,14 +72,14 @@ class ForgotPasswordService:
     def reset_password(self, token: str, new_password: str, confirm_password: str):
         user = self.verify_reset_token(token)
         if not user:
-            raise ValueError("رمز إعادة التعيين غير صالح أو منتهي الصلاحية")
-        
+            raise HTTPException(status_code=400, detail="رمز إعادة التعيين غير صالح أو منتهي الصلاحية")
+
         if new_password != confirm_password:
-            raise ValueError("كلمتا المرور غير متطابقتين")
-        
+            raise HTTPException(status_code=400, detail="كلمتا المرور غير متطابقتين")
+
         valid, msg = AuthService().validate_password_strength(new_password)
         if not valid:
-            raise ValueError(msg)
+            raise HTTPException(status_code=400, detail=msg)
 
         user.password_hash = self.hash_password(new_password)
         user.reset_token = None
@@ -95,4 +97,4 @@ class ForgotPasswordService:
         """التحقق من كلمة المرور"""
         return self.pwd_context.verify(plain_password, hashed_password)
 
-forgot_password_service = ForgotPasswordService()
+forgot_password_service = ForgotPasswordService(SessionLocal())

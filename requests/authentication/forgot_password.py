@@ -11,7 +11,7 @@ class ResetPasswordRequest(BaseModel):
     new_password: str
     confirm_password: str
     
-router = APIRouter(prefix="/auth", tags=["forgotpassword"])    
+router = APIRouter(prefix="/auth", tags=["authentication"])
 
 @router.post("/forgot-password")
 def forgot_password(request: ForgotPasswordRequest):
