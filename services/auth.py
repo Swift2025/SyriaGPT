@@ -5,9 +5,13 @@ from jose import JWTError, jwt
 import os
 import secrets
 import string
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 
 from config.config_loader import config_loader
+from services.user_repository import user_repository # Add this import
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 class AuthService:
     def __init__(self):
@@ -27,6 +31,7 @@ class AuthService:
         if expires_delta:
             expire = datetime.utcnow() + expires_delta
         else:
+            # Set default expiration to 30 minutes if not provided
             expire = datetime.utcnow() + timedelta(minutes=self.access_token_expire_minutes)
         
         to_encode.update({"exp": expire})
@@ -61,6 +66,27 @@ class AuthService:
             return False, config_loader.get_message("validation", "password_no_special")
         
         return True, config_loader.get_message("validation", "password_strong")
+    
 
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = auth_service.verify_token(token)
+        if payload is None:
+            raise credentials_exception
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    user = user_repository.get_user_by_email(email)
+    if user is None:
+        raise credentials_exception
+    return user
 
 auth_service = AuthService()

@@ -3,6 +3,8 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, validator
 import re
 
+
+
 from services.auth import auth_service
 
 
@@ -44,3 +46,14 @@ class SocialLoginRequest(BaseModel):
     redirect_uri: Optional[str] = None    
 
 
+
+
+class UserLoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+    remember_me: Optional[bool] = False
+    two_factor_code: Optional[str] = None
+
+
+class TwoFactorVerifyRequest(BaseModel):
+    code: str = Field(..., min_length=6, max_length=6)    

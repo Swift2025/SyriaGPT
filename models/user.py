@@ -23,6 +23,10 @@ class User(Base):
     oauth_provider_id = Column(String(100), nullable=True)
     oauth_data = Column(Text, nullable=True)
     
+    # 2FA Fields
+    two_factor_secret = Column(String(255), nullable=True) # <-- ADD THIS LINE
+    two_factor_enabled = Column(Boolean, default=False)   # <-- THIS LINE IS ALREADY THERE, ENSURE IT'S CORRECT
+
     # Verification fields
     is_email_verified = Column(Boolean, default=False)
     is_phone_verified = Column(Boolean, default=False)
@@ -35,6 +39,10 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
     last_login_at = Column(DateTime(timezone=True), nullable=True)
+
+
+
+
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, provider={self.oauth_provider})>"

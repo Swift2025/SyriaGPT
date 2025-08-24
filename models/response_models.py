@@ -54,8 +54,19 @@ class ErrorResponse(BaseModel):
 
 
 class LoginResponse(BaseModel):
+    access_token: Optional[str] = None # <-- MAKE THIS OPTIONAL
     access_token: str
     token_type: str = "bearer"
     user_id: str
     email: str
     full_name: Optional[str] = None
+    two_factor_required: bool = False # <-- ADD THIS LINE
+    message: Optional[str] = None     # <-- ADD THIS LINE    
+
+class TwoFactorSetupResponse(BaseModel):
+    secret_key: str
+    qr_code: str # This will be a base64 encoded image string
+
+class GeneralResponse(BaseModel):
+    status: str
+    message: str    

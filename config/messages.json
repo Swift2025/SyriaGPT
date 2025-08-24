@@ -11,6 +11,7 @@
     "already_verified": "Email is already verified"
   },
   "errors": {
+    "invalid_credentials": "Invalid email or password",
     "email_exists": "Email already registered",
     "phone_exists": "Phone number already registered",
     "registration_failed": "Registration failed: {error}",
