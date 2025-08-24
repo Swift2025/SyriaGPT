@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from requests.authentication.registeration import router as auth_router
 from requests.authentication.authentication import router as authentication_router 
 from requests.authentication.forgot_password import router as forgot_password_router
-from requests.authentication.authentication import router as authentication_router
 from requests.authentication.two_factor import router as two_factor_router 
 
 app = FastAPI(title="Syria GPT API", version="1.0.0")
