@@ -1,0 +1,53 @@
+from datetime import datetime
+from typing import Optional, Dict, Any
+from pydantic import BaseModel
+
+
+class UserRegistrationResponse(BaseModel):
+    id: str
+    email: str
+    phone_number: Optional[str]
+    full_name: Optional[str]
+    profile_picture: Optional[str]
+    oauth_provider: Optional[str]
+    status: str
+    is_email_verified: bool
+    is_phone_verified: bool
+    created_at: datetime
+    registration_token: Optional[str]
+    message: str
+
+
+class EmailVerificationResponse(BaseModel):
+    message: str
+    verified: bool
+    user_id: str
+    email: str
+
+
+class OAuthProvidersResponse(BaseModel):
+    providers: list[str]
+    configured_providers: Dict[str, bool]
+
+
+class OAuthAuthorizationResponse(BaseModel):
+    authorization_url: str
+    redirect_uri: str
+    state: str
+    provider: str
+
+
+class HealthResponse(BaseModel):
+    status: str
+    service: str
+    email_configured: bool
+    oauth_providers: list[str]
+    database_connected: bool
+    version: str
+
+
+class ErrorResponse(BaseModel):
+    error: str
+    message: str
+    details: Optional[Dict[str, Any]] = None
+    status_code: int

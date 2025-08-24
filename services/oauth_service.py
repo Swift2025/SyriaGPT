@@ -1,0 +1,149 @@
+import os
+from typing import Optional, Dict, Any
+from authlib.integrations.httpx_client import AsyncOAuth2Client
+from fastapi import HTTPException, status
+import httpx
+import logging
+
+from config.config_loader import config_loader
+
+logger = logging.getLogger(__name__)
+
+
+class OAuthProvider:
+    def __init__(self, name: str, client_id: str, client_secret: str, config: Dict[str, Any]):
+        self.name = name
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.authorize_url = config.get("authorize_url")
+        self.access_token_url = config.get("access_token_url")
+        self.user_info_url = config.get("user_info_url")
+        self.scope = config.get("scope", "openid email profile")
+        self.user_info_mapping = config.get("user_info_mapping", {})
+
+    def get_authorization_url(self, redirect_uri: str, state: str) -> str:
+        client = AsyncOAuth2Client(
+            client_id=self.client_id,
+            client_secret=self.client_secret
+        )
+        
+        authorization_url, _ = client.create_authorization_url(
+            self.authorize_url,
+            redirect_uri=redirect_uri,
+            state=state,
+            scope=self.scope
+        )
+        
+        return authorization_url
+
+    async def get_user_info(self, code: str, redirect_uri: str) -> Optional[Dict[str, Any]]:
+        try:
+            client = AsyncOAuth2Client(
+                client_id=self.client_id,
+                client_secret=self.client_secret
+            )
+            
+            token = await client.fetch_token(
+                self.access_token_url,
+                code=code,
+                redirect_uri=redirect_uri
+            )
+            
+            async with httpx.AsyncClient() as http_client:
+                response = await http_client.get(
+                    self.user_info_url,
+                    headers={'Authorization': f"Bearer {token['access_token']}"}
+                )
+                response.raise_for_status()
+                return response.json()
+                
+        except Exception as e:
+            logger.error(f"Failed to get user info from {self.name}: {str(e)}")
+            return None
+
+
+class OAuthService:
+    def __init__(self):
+        self.providers = {}
+        self._setup_providers()
+
+    def _setup_providers(self):
+        provider_configs = config_loader.load_oauth_providers()
+        
+        for provider_name, config in provider_configs.items():
+            client_id = os.getenv(f"{provider_name.upper()}_CLIENT_ID")
+            client_secret = os.getenv(f"{provider_name.upper()}_CLIENT_SECRET")
+            
+            if client_id and client_secret:
+                self.providers[provider_name] = OAuthProvider(
+                    name=provider_name,
+                    client_id=client_id,
+                    client_secret=client_secret,
+                    config=config
+                )
+
+    def get_provider(self, provider_name: str) -> Optional[OAuthProvider]:
+        return self.providers.get(provider_name.lower())
+
+    def get_available_providers(self) -> list:
+        return list(self.providers.keys())
+
+    def get_authorization_url(self, provider_name: str, redirect_uri: str, state: str) -> str:
+        provider = self.get_provider(provider_name)
+        if not provider:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"OAuth provider '{provider_name}' is not supported"
+            )
+        
+        return provider.get_authorization_url(redirect_uri, state)
+
+    async def get_user_info(self, provider_name: str, code: str, redirect_uri: str) -> Optional[Dict[str, Any]]:
+        provider = self.get_provider(provider_name)
+        if not provider:
+            return None
+        
+        user_info = await provider.get_user_info(code, redirect_uri)
+        if not user_info:
+            return None
+
+        return self._normalize_user_info(provider_name, user_info)
+
+    def _normalize_user_info(self, provider_name: str, user_info: Dict[str, Any]) -> Dict[str, Any]:
+        normalized = {
+            "provider": provider_name,
+            "provider_id": None,
+            "email": None,
+            "name": None,
+            "picture": None
+        }
+
+        provider = self.get_provider(provider_name)
+        if provider and provider.user_info_mapping:
+            mapping = provider.user_info_mapping
+            
+            for field, path in mapping.items():
+                value = self._get_nested_value(user_info, path)
+                normalized[field] = value
+
+        return normalized
+
+    def _get_nested_value(self, data: Dict[str, Any], path: str) -> Any:
+        keys = path.split(".")
+        value = data
+        
+        for key in keys:
+            if isinstance(value, dict) and key in value:
+                value = value[key]
+            else:
+                return None
+        
+        return value
+
+    def is_configured(self, provider_name: str = None) -> bool:
+        if provider_name:
+            return provider_name.lower() in self.providers
+        return len(self.providers) > 0
+
+
+oauth_service = OAuthService()
