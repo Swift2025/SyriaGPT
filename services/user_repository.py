@@ -17,7 +17,20 @@ class UserRepository:
             return db
         finally:
             pass
+    def find_user_by_oauth(self, provider: str, provider_id: str) -> Optional[User]:
+        db = self.get_db()
+        try:
+            return db.query(User).filter(
+                User.oauth_provider == provider,
+                User.oauth_provider_id == provider_id
+            ).first()
+        except Exception:
+            return None
+        finally:
+            db.close()    
 
+
+            
     def create_user(self, user_data: dict) -> tuple[Optional[User], Optional[str]]:
         db = self.get_db()
         try:

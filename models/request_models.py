@@ -37,3 +37,10 @@ class OAuthCallbackRequest(BaseModel):
     code: str
     state: Optional[str] = None
     redirect_uri: Optional[str] = None
+
+class SocialLoginRequest(BaseModel):
+    provider: str = Field(..., pattern=r'^(google|facebook)$')
+    code: str
+    redirect_uri: Optional[str] = None    
+
+
