@@ -21,3 +21,6 @@ class User(Base):
     token_expiry = Column(DateTime, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    reset_token = Column(String, nullable=True)
+    reset_token_expiry = Column(DateTime, nullable=True)
+    last_password_change = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
