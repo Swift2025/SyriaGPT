@@ -28,7 +28,7 @@ class ForgotPasswordService:
     def create_reset_token(self, email: str) -> str:
         user = self.db.query(User).filter(User.email == email).first()
         if not user:
-            raise ValueError("المستخدم غير موجود")
+            raise HTTPException(status_code=400, detail="المستخدم غير موجود")
 
         expire = datetime.utcnow() + timedelta(minutes=self.reset_token_expire_minutes)
         payload = {"sub": email, "exp": expire}
@@ -85,6 +85,7 @@ class ForgotPasswordService:
         user.reset_token = None
         user.reset_token_expiry = None
         user.token = None
+        user.token_expiry = None
         user.last_password_change = datetime.utcnow()
         self.db.commit()
         return True
