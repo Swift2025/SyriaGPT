@@ -2,9 +2,7 @@ import uuid
 from sqlalchemy import Column, String, Boolean, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from .base import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -30,18 +28,16 @@ class User(Base):
     # Verification fields
     is_email_verified = Column(Boolean, default=False)
     is_phone_verified = Column(Boolean, default=False)
-    two_factor_enabled = Column(Boolean, default=False)
     status = Column(String(50), default="pending_verification")
     token = Column(String, nullable=True)
     token_expiry = Column(DateTime, nullable=True)
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
     reset_token = Column(String, nullable=True)
     reset_token_expiry = Column(DateTime, nullable=True)
     last_password_change = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
     last_login_at = Column(DateTime(timezone=True), nullable=True)
 
 

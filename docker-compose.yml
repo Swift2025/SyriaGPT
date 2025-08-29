@@ -13,6 +13,7 @@ services:
       - "9000:9000"
     depends_on:
       - db
+      - qdrant
 
   db:
     image: postgres:15
@@ -26,6 +27,16 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  qdrant:
+    image: qdrant/qdrant:v1.7.0
+    container_name: syria-gpt-qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
 
   pgadmin:
     image: dpage/pgadmin4
@@ -41,3 +52,4 @@ services:
 
 volumes:
   postgres_data:
+  qdrant_data:

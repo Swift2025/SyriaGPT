@@ -19,3 +19,19 @@ python-dotenv==1.0.0
 pyotp
 qrcode[pil]
 
+# 
+beautifulsoup4==4.12.3
+requests==2.31.0
+redis==5.0.1
+
+# Vector Database and AI
+qdrant-client==1.7.0
+sentence-transformers==2.2.2
+google-generativeai==0.3.2
+google-cloud-aiplatform==1.38.1  # For Gemini embeddings
+
+# Text Processing
+langchain==0.1.0
+
+# Async HTTP
+aiofiles==0.23.2
