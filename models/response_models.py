@@ -69,4 +69,26 @@ class TwoFactorSetupResponse(BaseModel):
 
 class GeneralResponse(BaseModel):
     status: str
-    message: str    
+    message: str
+
+
+class QuestionResponse(BaseModel):
+    id: str
+    user_id: str
+    question: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class AnswerResponse(BaseModel):
+    id: str
+    answer: str
+    question_id: str
+    user_id: str
+    created_at: datetime
+    author: str
+
+
+class QuestionWithAnswersResponse(BaseModel):
+    question: QuestionResponse
+    answers: list[AnswerResponse]    

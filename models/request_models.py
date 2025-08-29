@@ -56,4 +56,14 @@ class UserLoginRequest(BaseModel):
 
 
 class TwoFactorVerifyRequest(BaseModel):
-    code: str = Field(..., min_length=6, max_length=6)    
+    code: str = Field(..., min_length=6, max_length=6)
+
+
+class QuestionCreateRequest(BaseModel):
+    question: str = Field(..., min_length=1, max_length=10000)
+
+
+class AnswerCreateRequest(BaseModel):
+    answer: str = Field(..., min_length=1, max_length=10000)
+    question_id: str = Field(..., description="UUID of the question")
+    author: str = Field(..., min_length=1, max_length=255)    

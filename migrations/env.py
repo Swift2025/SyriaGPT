@@ -6,15 +6,27 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from models.user import Base
+from models.user import Base as UserBase
+from models.question import Base as QuestionBase
+from models.answer import Base as AnswerBase
+
+# Combine all metadata
+from sqlalchemy import MetaData
+target_metadata = MetaData()
+for table in UserBase.metadata.tables.values():
+    table.tometadata(target_metadata)
+for table in QuestionBase.metadata.tables.values():
+    table.tometadata(target_metadata)
+for table in AnswerBase.metadata.tables.values():
+    table.tometadata(target_metadata)
 
 config = context.config
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL", "postgresql+psycopg2://admin:admin123@db:5432/syriagpt"))
+config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL", "postgresql+psycopg2://admin:admin123@localhost:5432/syriagpt"))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+# target_metadata is already defined above
 
 
 def run_migrations_offline() -> None:
