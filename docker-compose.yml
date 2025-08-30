@@ -7,13 +7,19 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 9000 --reload
     env_file:
       - .env
+    environment:
+      - GEMINI_API_KEY=AIzaSyAAWXgzwx1zWJrxxXi-O4NAOSHeULxvDHU
     volumes:
       - .:/app
     ports:
       - "9000:9000"
     depends_on:
-      - db
-      - qdrant
+      db:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      redis:
+        condition: service_started
 
   db:
     image: postgres:15
@@ -27,9 +33,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d syriagpt"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   qdrant:
-    image: qdrant/qdrant:v1.7.0
+    image: qdrant/qdrant:v1.15.0
     container_name: syria-gpt-qdrant
     restart: always
     ports:
@@ -37,6 +48,15 @@ services:
       - "6334:6334"
     volumes:
       - qdrant_data:/qdrant/storage
+
+  redis:
+    image: redis:7-alpine
+    container_name: syria-gpt-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 
   pgadmin:
     image: dpage/pgadmin4
@@ -53,3 +73,4 @@ services:
 volumes:
   postgres_data:
   qdrant_data:
+  redis_data:

@@ -1,10 +1,19 @@
 FROM python:3.13-slim
 
+# Create non-root user
+RUN useradd -m -u 1000 appuser
+
 WORKDIR /app
 
 COPY . .
 
 RUN pip install -r requirements.txt
+
+# Change ownership of the app directory to the non-root user
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
 
 EXPOSE 9000
 

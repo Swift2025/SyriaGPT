@@ -4,8 +4,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 
-from services.auth import auth_service, oauth2_scheme
-from services.user_repository import user_repository
+from services.auth import get_auth_service, oauth2_scheme
+# Removed direct import - using get_user_repository() function instead
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
@@ -14,6 +14,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        auth_service = get_auth_service()
         payload = auth_service.verify_token(token)
         if payload is None:
             raise credentials_exception
@@ -25,7 +26,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     
     # Handle test tokens
     if email == "test@example.com":
-        from models.user import User
+        from models.domain.user import User
         # Create a mock user for testing
         test_user = User()
         test_user.id = "test-user-id"
@@ -35,7 +36,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         test_user.last_name = "User"
         return test_user
     
-    user = user_repository.get_user_by_email(email)
+    from services.repositories import get_user_repository
+    user_repo = get_user_repository()
+    user = user_repo.get_user_by_email(email)
     if user is None:
         raise credentials_exception
     return user

@@ -4,3 +4,6 @@ data-migration.txt
 user-model.txt
 /.claude
 *.pyc
+__pycache__/
+*.pyc
+.env
