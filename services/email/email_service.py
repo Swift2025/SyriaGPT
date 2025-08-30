@@ -20,7 +20,7 @@ class EmailService:
         self.email_from = os.getenv("EMAIL_FROM", "noreply@syriagpt.com")
         self.email_from_name = os.getenv("EMAIL_FROM_NAME", "Syria GPT")
         self.frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
-        self.backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+        self.backend_url = os.getenv("BACKEND_URL", "http://localhost:9000")
 
     async def send_email(
         self,
